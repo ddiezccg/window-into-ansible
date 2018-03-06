@@ -1,0 +1,32 @@
+# -*- mode: ruby -*-
+# vi: set ft=ruby :
+
+Vagrant.configure(2) do |config|
+
+  config.vm.define :mgmt do |mgmt_config|
+      mgmt_config.vm.box = "centos/7"
+      mgmt_config.vm.hostname = "mgmt"
+      mgmt_config.vm.network :private_network, ip: "10.0.15.50"
+      mgmt_config.vm.synced_folder ".", "/vagrant", disabled: true
+      mgmt_config.vm.synced_folder "./ansible", "/mgmt-node/ansible", type: "rsync"
+      mgmt_config.vm.provider "virtualbox" do |vb|
+      vb.memory = "768"
+      end
+      mgmt_config.vm.provision :shell, path: "bootstrap.sh"
+  end
+
+  config.vm.define :dev_box do |dev_box_config|    
+      dev_box_config.vm.box = "sbrumley/windows10"
+      dev_box_config.vm.box_version = "10.0"
+      dev_box_config.vm.guest = :windows
+      dev_box_config.vm.hostname = "devbox"
+      dev_box_config.winrm.port = "5986"
+      dev_box_config.winrm.transport = :plaintext
+      dev_box_config.vm.network :private_network, ip: "10.0.15.40"
+      dev_box_config.vm.provider "virtualbox" do |vb|
+        vb.gui = true
+        vb.memory = "3584"
+        vb.cpus = "2"
+      end
+  end
+end
